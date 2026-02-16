@@ -1,9 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { Badge } from '@/components/ui/badge'
-import { revalidatePath } from 'next/cache'
 import { OrderFilter } from '@/components/admin/orders/order-filter'
-import { OrderStatusSelect } from '@/components/admin/order-status-select'
-import { OrderDetailsDrawer } from '@/components/admin/orders/order-details-drawer'
 import { AdminOrdersTable } from '@/components/admin/orders/admin-order-table'
 
 export default async function AdminOrdersPage({
