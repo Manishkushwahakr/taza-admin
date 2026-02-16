@@ -31,18 +31,6 @@ export default async function UsersPage({
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">User Management</h1>
                     <p className="text-slate-500 text-sm">Monitor user profiles, contact details, and manage system access roles.</p>
                 </div>
-
-                {/* Debug Info (Temporary) */}
-                {error && (
-                    <div className="rounded-xl border border-red-100 bg-red-50 p-4 text-xs font-bold text-red-600">
-                        Supabase Error: {error.message}
-                    </div>
-                )}
-                {users && users.length === 0 && !q && (
-                    <div className="rounded-xl border border-amber-100 bg-amber-50 p-4 text-xs font-bold text-amber-600">
-                        Notice: Profiles table is currently empty. You may need to sync users from auth.users.
-                    </div>
-                )}
             </div>
 
             {/* Search & Filters */}
