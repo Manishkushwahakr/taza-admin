@@ -51,22 +51,31 @@ export async function getUserDetails(userId: string) {
     // 1. Fetch Profile
     const { data: profile } = await supabase
         .from('profiles')
-        .select('*')
+        .select('user_id, name, phone, created_at')
         .eq('user_id', userId)
         .single()
 
     // 2. Fetch Addresses
     const { data: addresses } = await supabase
         .from('addresses')
-        .select('*')
+        .select('id, type, address_line, city, state, pincode, is_default')
         .eq('user_id', userId)
 
     // 3. Fetch Recent Orders
     const { data: orders } = await supabase
         .from('orders')
         .select(`
-            *,
-            order_items (*)
+            id,
+            order_number,
+            status,
+            total_amount,
+            created_at,
+            order_items (
+                id,
+                quantity,
+                price_at_time,
+                products (name, image_url)
+            )
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false })

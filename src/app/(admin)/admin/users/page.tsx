@@ -5,24 +5,35 @@ import { UserList } from './user-list'
 export default async function UsersPage({
     searchParams
 }: {
-    searchParams: Promise<{ q?: string }>
+    searchParams: Promise<{ q?: string; page?: string }>
 }) {
     const supabase = await createClient()
     const { q } = await searchParams
 
-    // Fetch profiles with roles
+    const page = parseInt((await searchParams).page || '1')
+    const limit = 50
+    const startRange = (page - 1) * limit
+    const endRange = startRange + limit - 1
+
+    // Fetch profiles with roles - Optimized field selection
     let query = supabase
         .from('profiles')
         .select(`
-            *,
+            user_id,
+            name,
+            phone,
+            created_at,
             user_roles (role)
-        `)
+        `, { count: 'exact' })
 
     if (q) {
         query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%`)
     }
 
-    const { data: users, error } = await query.order('created_at', { ascending: false })
+    // Apply Pagination
+    query = query.range(startRange, endRange)
+
+    const { data: users, count, error } = await query.order('created_at', { ascending: false })
 
     return (
         <div className="space-y-8 p-6">
@@ -59,7 +70,7 @@ export default async function UsersPage({
                 </form>
             </div>
 
-            <UserList initialUsers={users || []} />
+            <UserList initialUsers={users || []} totalCount={count || 0} currentPage={page} />
         </div>
     )
 }

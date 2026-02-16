@@ -1,15 +1,19 @@
 import { createClient } from '@/utils/supabase/server'
-import { Plus, Search, Edit2, Trash2, Filter, ShoppingBag } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, Filter, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 
 export default async function AdminProductsPage({
     searchParams
 }: {
-    searchParams: Promise<{ q?: string; category?: string }>
+    searchParams: Promise<{ q?: string; category?: string; page?: string }>
 }) {
     const supabase = await createClient()
-    const { q, category } = await searchParams
+    const { q, category, page: pageParam = '1' } = await searchParams
+    const page = parseInt(pageParam)
+    const limit = 20
+    const startRange = (page - 1) * limit
+    const endRange = startRange + limit - 1
 
     // Fetch categories for filter
     const { data: categories } = await supabase
@@ -17,11 +21,21 @@ export default async function AdminProductsPage({
         .select('id, name')
         .order('name')
 
-    // Base query
+    // Base query - Optimized field selection
     let query = supabase
         .from('products')
         .select(`
-            *,
+            id,
+            name,
+            brand,
+            unit,
+            image_url,
+            price,
+            price_selling,
+            price_mrp,
+            stock,
+            in_stock,
+            created_at,
             product_categories!inner (
                 category_id,
                 categories (name)
@@ -37,7 +51,12 @@ export default async function AdminProductsPage({
         query = query.eq('product_categories.category_id', category)
     }
 
-    const { data: products, error } = await query.order('created_at', { ascending: false })
+    // Apply Pagination
+    query = query.range(startRange, endRange)
+
+    const { data: products, count, error } = await query.order('created_at', { ascending: false })
+    const totalCount = count || 0
+    const totalPages = Math.ceil(totalCount / limit)
 
     async function deleteProduct(formData: FormData) {
         'use server'
@@ -45,6 +64,14 @@ export default async function AdminProductsPage({
         const supabase = await createClient()
         await supabase.from('products').delete().eq('id', id)
         revalidatePath('/admin/products')
+    }
+
+    const createPageURL = (pageNumber: number | string) => {
+        const params = new URLSearchParams()
+        if (q) params.set('q', q)
+        if (category) params.set('category', category)
+        params.set('page', pageNumber.toString())
+        return `?${params.toString()}`
     }
 
     return (
@@ -210,6 +237,29 @@ export default async function AdminProductsPage({
                         </tbody>
                     </table>
                 </div>
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/30 px-6 py-4">
+                        <div className="text-xs font-bold text-slate-400">
+                            Showing {startRange + 1} to {Math.min(endRange + 1, totalCount)} of {totalCount} products
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Link
+                                href={page > 1 ? createPageURL(page - 1) : '#'}
+                                className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 ${page <= 1 ? 'pointer-events-none opacity-30' : ''}`}
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                            </Link>
+                            <span className="text-xs font-bold text-slate-700">Page {page} of {totalPages}</span>
+                            <Link
+                                href={page < totalPages ? createPageURL(page + 1) : '#'}
+                                className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 ${page >= totalPages ? 'pointer-events-none opacity-30' : ''}`}
+                            >
+                                <ChevronRight className="h-4 w-4" />
+                            </Link>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

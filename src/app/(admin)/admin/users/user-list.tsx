@@ -7,13 +7,21 @@ import { UserDetailDrawer } from './user-detail-drawer'
 
 type FilterRoleType = 'all' | 'admin' | 'seller' | 'delivery' | 'user'
 
-export function UserList({ initialUsers }: { initialUsers: any[] }) {
+export function UserList({
+    initialUsers,
+    totalCount,
+    currentPage
+}: {
+    initialUsers: any[],
+    totalCount: number,
+    currentPage: number
+}) {
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
     const [filterRole, setFilterRole] = useState<FilterRoleType>('all')
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 100
+    const itemsPerPage = 50
 
-    // 1. Role Fallback & Frontend Filtering Logic
+    // 1. Role Filtering Logic (Still needed for role subset if filtered locally, 
+    // but ideally we would also move role filtering to server if data set is huge)
     const filteredUsers = useMemo(() => {
         return initialUsers.filter(user => {
             const userRole = user.user_roles?.[0]?.role || 'user'
@@ -22,12 +30,13 @@ export function UserList({ initialUsers }: { initialUsers: any[] }) {
         })
     }, [initialUsers, filterRole])
 
-    // Pagination Logic
-    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-    const paginatedUsers = filteredUsers.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    )
+    const totalPages = Math.ceil(totalCount / itemsPerPage)
+
+    const createPageURL = (pageNumber: number | string) => {
+        const params = new URLSearchParams(window.location.search)
+        params.set('page', pageNumber.toString())
+        return `?${params.toString()}`
+    }
 
     const getRoleBadgeColor = (role: string) => {
         switch (role) {
@@ -50,7 +59,10 @@ export function UserList({ initialUsers }: { initialUsers: any[] }) {
                     value={filterRole}
                     onChange={(e) => {
                         setFilterRole(e.target.value as FilterRoleType)
-                        setCurrentPage(1)
+                        // Reset to page 1 in the URL when changing filters
+                        const params = new URLSearchParams(window.location.search)
+                        params.set('page', '1')
+                        window.location.search = params.toString()
                     }}
                     className="h-10 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition-all focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 cursor-pointer"
                 >
@@ -75,7 +87,7 @@ export function UserList({ initialUsers }: { initialUsers: any[] }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {paginatedUsers.length === 0 ? (
+                            {filteredUsers.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-20 text-center">
                                         <div className="flex flex-col items-center gap-3">
@@ -88,7 +100,7 @@ export function UserList({ initialUsers }: { initialUsers: any[] }) {
                                     </td>
                                 </tr>
                             ) : (
-                                paginatedUsers.map((user: any) => {
+                                filteredUsers.map((user: any) => {
                                     const userRole = user.user_roles?.[0]?.role || 'user'
                                     return (
                                         <tr key={user.id} className="transition-colors hover:bg-slate-50/50 group">
@@ -153,21 +165,19 @@ export function UserList({ initialUsers }: { initialUsers: any[] }) {
                             Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} users
                         </div>
                         <div className="flex items-center gap-2">
-                            <button
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(prev => prev - 1)}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30"
+                            <a
+                                href={currentPage > 1 ? createPageURL(currentPage - 1) : '#'}
+                                className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 ${currentPage <= 1 ? 'pointer-events-none opacity-30' : ''}`}
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                            </button>
+                            </a>
                             <span className="text-xs font-bold text-slate-700">Page {currentPage} of {totalPages}</span>
-                            <button
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(prev => prev + 1)}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-30"
+                            <a
+                                href={currentPage < totalPages ? createPageURL(currentPage + 1) : '#'}
+                                className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 ${currentPage >= totalPages ? 'pointer-events-none opacity-30' : ''}`}
                             >
                                 <ChevronRight className="h-4 w-4" />
-                            </button>
+                            </a>
                         </div>
                     </div>
                 )}
