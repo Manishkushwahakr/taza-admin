@@ -44,3 +44,33 @@ export async function updateUserRole(userId: string, newRole: string) {
 
     revalidatePath('/admin/users')
 }
+
+export async function getUserDetails(userId: string) {
+    const supabase = await createClient()
+
+    // 1. Fetch Profile
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+
+    // 2. Fetch Addresses
+    const { data: addresses } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('user_id', userId)
+
+    // 3. Fetch Recent Orders
+    const { data: orders } = await supabase
+        .from('orders')
+        .select(`
+            *,
+            order_items (*)
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+    return { profile, addresses, orders }
+}
