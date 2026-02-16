@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
-import { Plus, Trash2, Tag } from 'lucide-react'
+import { Plus, Trash2, Tag, ChevronRight } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
+import Link from 'next/link'
 
 export default async function CategoriesPage() {
     const supabase = await createClient()
@@ -14,7 +15,6 @@ export default async function CategoriesPage() {
         'use server'
         const name = formData.get('name') as string
         const slug = name.toLowerCase().replace(/ /g, '-')
-        // Basic slug generation, ideally use a library or proper sanitization
 
         const supabase = await createClient()
         await supabase.from('categories').insert({ name, slug })
@@ -29,20 +29,27 @@ export default async function CategoriesPage() {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Categories</h1>
+        <div className="space-y-8 p-6">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900">Categories</h1>
+                <p className="text-slate-500">Organize your products into logical groups for better discoverability.</p>
             </div>
 
             {/* Add Category Form */}
-            <div className="rounded-md border bg-white p-4 shadow-sm">
-                <h2 className="mb-4 text-lg font-medium">Add New Category</h2>
-                <form action={addCategory} className="flex gap-4 items-end">
-                    <div className="grid gap-2">
-                        <label htmlFor="name" className="text-sm font-medium">Category Name</label>
-                        <input required name="name" id="name" placeholder="e.g. Fruits & Veg" className="rounded-md border p-2 text-sm w-64" />
+            <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                <h2 className="mb-4 text-lg font-bold text-slate-900">Add New Category</h2>
+                <form action={addCategory} className="flex flex-col gap-4 md:flex-row md:items-end">
+                    <div className="grid flex-1 gap-2">
+                        <label htmlFor="name" className="text-sm font-semibold text-slate-700">Category Name</label>
+                        <input
+                            required
+                            name="name"
+                            id="name"
+                            placeholder="e.g. Fruits & Veg"
+                            className="h-11 rounded-xl border border-slate-200 px-4 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                        />
                     </div>
-                    <button className="flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
+                    <button className="flex h-11 items-center justify-center rounded-xl bg-slate-900 px-6 font-semibold text-white transition-all hover:bg-slate-800 active:scale-95">
                         <Plus className="mr-2 h-4 w-4" /> Add Category
                     </button>
                 </form>
@@ -50,26 +57,33 @@ export default async function CategoriesPage() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {categories?.map((category) => (
-                    <div key={category.id} className="flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                                <Tag className="h-5 w-5" />
+                    <div key={category.id} className="group relative flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-all hover:border-blue-200 hover:shadow-md">
+                        <Link
+                            href={`/admin/products?category=${category.id}`}
+                            className="flex flex-1 items-center gap-4 focus:outline-none"
+                        >
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                                <Tag className="h-6 w-6" />
                             </div>
                             <div>
-                                <div className="font-medium">{category.name}</div>
-                                <div className="text-xs text-gray-500">/{category.slug}</div>
+                                <div className="font-bold text-slate-900">{category.name}</div>
+                                <div className="text-xs font-medium text-slate-400">/{category.slug}</div>
                             </div>
+                            <ChevronRight className="ml-auto h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-blue-500" />
+                        </Link>
+
+                        <div className="ml-4 flex items-center border-l border-slate-100 pl-4">
+                            <form action={deleteCategory.bind(null, category.id)}>
+                                <button className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+                                    <Trash2 className="h-4 w-4" />
+                                </button>
+                            </form>
                         </div>
-                        <form action={deleteCategory.bind(null, category.id)}>
-                            <button className="text-gray-400 hover:text-red-600">
-                                <Trash2 className="h-4 w-4" />
-                            </button>
-                        </form>
                     </div>
                 ))}
                 {categories?.length === 0 && (
-                    <div className="col-span-full p-8 text-center text-gray-500">
-                        No categories found. Add one above.
+                    <div className="col-span-full rounded-2xl border border-dashed border-slate-200 p-12 text-center text-slate-500">
+                        No categories found. Start by adding one to organize your inventory.
                     </div>
                 )}
             </div>
