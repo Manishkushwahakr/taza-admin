@@ -45,7 +45,8 @@ export interface Category {
     name: string;
     slug: string;
     image_url?: string;
-    created_at: string;
+    created_at?: string;
+    sub_categories?: string | null; // Mapped from 'sub categories'
 }
 
 export interface Product {
@@ -53,7 +54,7 @@ export interface Product {
     name: string;
     unit: string;
     image_url?: string;
-    categories: string; // The schema says text, but might be a comma-separated list or JSON? Keeping as string for now.
+    categories: string;
     description?: string;
     in_stock: boolean;
     brand?: string;
@@ -62,7 +63,7 @@ export interface Product {
     stock?: number;
     tax_percent?: number;
     barcode?: string;
-    price?: number; // Base price?
+    price?: number;
     orders_last_7d: number;
     total_orders: number;
     profit_margin_percent: number;
@@ -73,6 +74,12 @@ export interface Product {
     is_seller_editable: boolean;
     price_band_percent: number;
     created_at: string;
+}
+
+export interface ProductCategory {
+    id: string;
+    product_id: string;
+    category_id: string;
 }
 
 export interface SellerSpecificPrice {

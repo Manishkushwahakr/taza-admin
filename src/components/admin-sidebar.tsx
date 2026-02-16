@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LayoutDashboard, Store, Users, Settings, LogOut, MapPin, Tag, MessageSquare, Phone, DollarSign, ShoppingBag } from 'lucide-react'
+import { LayoutDashboard, Store, Users, Settings, LogOut, MapPin, Tag, MessageSquare, Phone, DollarSign, ShoppingBag, Package } from 'lucide-react'
 
 export function AdminSidebar() {
     return (
@@ -21,6 +21,13 @@ export function AdminSidebar() {
                 >
                     <Store className="mr-3 h-5 w-5 text-gray-500 group-hover:text-gray-900" />
                     Sellers
+                </Link>
+                <Link
+                    href="/admin/products"
+                    className="group flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                >
+                    <Package className="mr-3 h-5 w-5 text-gray-500 group-hover:text-gray-900" />
+                    Products
                 </Link>
                 <Link
                     href="/admin/orders"
