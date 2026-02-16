@@ -1,4 +1,4 @@
-export type UserRoleType = 'admin' | 'seller' | 'customer' | 'delivery'; // Assuming these based on context
+export type UserRoleType = 'admin' | 'seller' | 'user' | 'delivery';
 
 export interface Profile {
     id: string;
