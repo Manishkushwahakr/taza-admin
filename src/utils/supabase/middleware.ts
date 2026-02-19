@@ -67,12 +67,12 @@ export async function updateSession(request: NextRequest) {
 
         // 2. Protect Admin Routes
         if (request.nextUrl.pathname.startsWith('/admin') && role !== 'admin') {
-            return NextResponse.redirect(new URL('/', request.url))
+            return NextResponse.redirect(new URL('/access-denied', request.url))
         }
 
         // 3. Protect Seller Routes
         if (request.nextUrl.pathname.startsWith('/seller') && role !== 'seller') {
-            return NextResponse.redirect(new URL('/', request.url))
+            return NextResponse.redirect(new URL('/access-denied', request.url))
         }
 
         // 4. Redirect logged-in users away from login page
