@@ -36,11 +36,16 @@ export default async function AdminOrdersPage({
         .order('created_at', { ascending: false })
 
     // Date Filters
+    // Date Filters
     if (params.start_date) {
-        query = query.gte('created_at', `${params.start_date}T00:00:00`)
+        // If it looks like an ISO string (has T), use it directly. Otherwise append start of day.
+        const dateStr = params.start_date.includes('T') ? params.start_date : `${params.start_date}T00:00:00`
+        query = query.gte('created_at', dateStr)
     }
     if (params.end_date) {
-        query = query.lte('created_at', `${params.end_date}T23:59:59`)
+        // If it looks like an ISO string (has T), use it directly. Otherwise append end of day.
+        const dateStr = params.end_date.includes('T') ? params.end_date : `${params.end_date}T23:59:59`
+        query = query.lte('created_at', dateStr)
     }
 
     // Slot Filter
