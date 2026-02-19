@@ -1,17 +1,84 @@
--- 1. Disable RLS temporarily to verify if this is the issue
--- (You can re-enable and add specific policies later for better security)
-ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_roles DISABLE ROW LEVEL SECURITY;
+-- Enable RLS on Orders tables if not already enabled
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.order_payments ENABLE ROW LEVEL SECURITY;
 
--- 2. OR, if you prefer to keep RLS enabled, run these policies:
-/*
-DROP POLICY IF EXISTS "Enable read access for all users" ON public.profiles;
-CREATE POLICY "Enable read access for all users" ON public.profiles FOR SELECT USING (true);
+-- 1. Create Policy for Admins to VIEW ALL Orders
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'orders' 
+        AND policyname = 'Admins can view all orders'
+    ) THEN
+        CREATE POLICY "Admins can view all orders" ON public.orders
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM public.user_roles 
+                WHERE user_id = auth.uid() 
+                AND role = 'admin'::public.app_role
+            )
+        );
+    END IF;
+END $$;
 
-DROP POLICY IF EXISTS "Enable read access for all users" ON public.user_roles;
-CREATE POLICY "Enable read access for all users" ON public.user_roles FOR SELECT USING (true);
-*/
+-- 2. Create Policy for Admins to VIEW ALL Order Items
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'order_items' 
+        AND policyname = 'Admins can view all order items'
+    ) THEN
+        CREATE POLICY "Admins can view all order items" ON public.order_items
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM public.user_roles 
+                WHERE user_id = auth.uid() 
+                AND role = 'admin'::public.app_role
+            )
+        );
+    END IF;
+END $$;
 
--- 3. Ensure the 'anon' role has usage on the public schema (usually granted by default)
-GRANT USAGE ON SCHEMA public TO anon, authenticated;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon, authenticated;
+-- 3. Create Policy for Admins to VIEW ALL Order Payments
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'order_payments' 
+        AND policyname = 'Admins can view all order payments'
+    ) THEN
+        CREATE POLICY "Admins can view all order payments" ON public.order_payments
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM public.user_roles 
+                WHERE user_id = auth.uid() 
+                AND role = 'admin'::public.app_role
+            )
+        );
+    END IF;
+END $$;
+
+-- 4. Create Policy for Admins to UPDATE Orders (e.g. changing status)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'orders' 
+        AND policyname = 'Admins can update orders'
+    ) THEN
+        CREATE POLICY "Admins can update orders" ON public.orders
+        FOR UPDATE
+        USING (
+            EXISTS (
+                SELECT 1 FROM public.user_roles 
+                WHERE user_id = auth.uid() 
+                AND role = 'admin'::public.app_role
+            )
+        );
+    END IF;
+END $$;
