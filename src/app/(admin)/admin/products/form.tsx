@@ -24,7 +24,32 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
         stock: 0,
         is_seller_editable: false,
         categories: '',
+        profit_margin_percent: 0,
     })
+
+    // Automatic Margin Calculation
+    // Logic: If MRP and Selling Price are set, calculate the percentage difference (Discount/Margin)
+    // Formula: ((MRP - Selling) / MRP) * 100
+    const calculateMargin = (mrp: number, selling: number) => {
+        if (mrp > 0 && selling >= 0) {
+            const margin = ((mrp - selling) / mrp) * 100
+            return parseFloat(margin.toFixed(2))
+        }
+        return 0
+    }
+
+    const handlePriceChange = (field: 'price_mrp' | 'price_selling', value: number) => {
+        const newData = { ...formData, [field]: value }
+
+        // Recalculate margin if both values depend on it
+        if (field === 'price_mrp') {
+            newData.profit_margin_percent = calculateMargin(value, newData.price_selling || 0)
+        } else if (field === 'price_selling') {
+            newData.profit_margin_percent = calculateMargin(newData.price_mrp || 0, value)
+        }
+
+        setFormData(newData)
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -128,7 +153,7 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
                                     type="number"
                                     required
                                     value={formData.price_mrp}
-                                    onChange={e => setFormData({ ...formData, price_mrp: parseFloat(e.target.value) })}
+                                    onChange={e => handlePriceChange('price_mrp', parseFloat(e.target.value))}
                                     className="h-11 w-full rounded-xl border border-slate-200 px-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                                 />
                             </div>
@@ -138,7 +163,7 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
                                     type="number"
                                     required
                                     value={formData.price_selling}
-                                    onChange={e => setFormData({ ...formData, price_selling: parseFloat(e.target.value) })}
+                                    onChange={e => handlePriceChange('price_selling', parseFloat(e.target.value))}
                                     className="h-11 w-full rounded-xl border border-slate-200 px-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                                 />
                             </div>
@@ -156,12 +181,12 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Profit Margin (%)</label>
+                                <label className="text-sm font-semibold text-slate-700">Discount / Margin (%)</label>
                                 <input
                                     type="number"
+                                    readOnly
                                     value={formData.profit_margin_percent}
-                                    onChange={e => setFormData({ ...formData, profit_margin_percent: parseFloat(e.target.value) })}
-                                    className="h-11 w-full rounded-xl border border-slate-200 px-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-600 focus:outline-none cursor-not-allowed"
                                 />
                             </div>
                             <div className="space-y-2">

@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { CheckCircle, XCircle, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CheckCircle, XCircle, Filter, ChevronLeft, ChevronRight, Edit2 } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -130,17 +130,19 @@ export default async function SellersPage({ searchParams }: { searchParams: Prom
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <form action={toggleStatus.bind(null, seller.id, seller.is_active)}>
-                                            {seller.is_active ? (
-                                                <button className="h-9 rounded-xl border border-red-100 bg-white px-4 text-[11px] font-bold text-red-600 transition-all hover:bg-red-50 active:scale-95">
-                                                    Deactivate
-                                                </button>
-                                            ) : (
-                                                <button className="h-9 rounded-xl bg-green-600 px-4 text-[11px] font-bold text-white transition-all hover:bg-green-700 active:scale-95 shadow-lg shadow-green-500/20">
-                                                    Verify & Approve
-                                                </button>
-                                            )}
-                                        </form>
+                                        <td className="px-6 py-4 text-right">
+                                            <form action={toggleStatus.bind(null, seller.id, seller.is_active)}>
+                                                {seller.is_active ? (
+                                                    <button className="h-9 rounded-xl border border-red-100 bg-white px-4 text-xs font-bold text-red-600 transition-all hover:bg-red-50 hover:border-red-200 active:scale-95 shadow-sm">
+                                                        Deactivate
+                                                    </button>
+                                                ) : (
+                                                    <button className="h-9 rounded-xl bg-green-600 px-4 text-xs font-bold text-white transition-all hover:bg-green-700 active:scale-95 shadow-lg shadow-green-500/20 hover:shadow-green-500/30">
+                                                        Verify & Approve
+                                                    </button>
+                                                )}
+                                            </form>
+                                        </td>
                                     </td>
                                 </tr>
                             ))}
