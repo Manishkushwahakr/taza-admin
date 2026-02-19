@@ -39,7 +39,7 @@ export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string,
                 onChange={handleChange}
                 disabled={loading}
                 className={`
-                    appearance-none w-full px-3 py-1.5 rounded-full text-xs font-semibold border cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-300
+                    appearance-none w-full px-3 py-1.5 rounded-full text-xs font-semibold border cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400
                     ${getStatusColor(status)}
                     ${loading ? 'opacity-50 cursor-wait' : ''}
                 `}

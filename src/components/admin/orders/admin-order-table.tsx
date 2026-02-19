@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { OrderStatusSelect } from '@/components/admin/order-status-select'
 import { OrderDetailsDrawer } from '@/components/admin/orders/order-details-drawer'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ChevronRight, User, IndianRupee, Clock, Phone } from 'lucide-react'
+import { ChevronRight, User, IndianRupee, Clock, Phone, MapPin, Store } from 'lucide-react'
 
 interface Order {
     id: string
@@ -13,10 +13,20 @@ interface Order {
     total: number
     payment_mode: string
     delivery_slot: string
+    base_price_amount?: number
+    seller_price_amount?: number
+    commission_amount?: number
+    tech_fee_amount?: number
     status: string
     addresses?: {
         name: string
         phone: string
+    }
+    areas?: {
+        name: string
+    }
+    sellers?: {
+        Seller_name: string
     }
     order_payments?: Array<{ paid: boolean }>
 }
@@ -55,6 +65,7 @@ export function AdminOrdersTable({ orders, count, page }: AdminOrdersTableProps)
                             <tr>
                                 <th className="px-6 py-4">Order Details</th>
                                 <th className="px-6 py-4">Customer</th>
+                                <th className="px-6 py-4">Area & Seller</th>
                                 <th className="px-6 py-4">Amount & Payment</th>
                                 <th className="px-6 py-4 text-center">Delivery Slot</th>
                                 <th className="px-6 py-4">Status</th>
@@ -64,7 +75,7 @@ export function AdminOrdersTable({ orders, count, page }: AdminOrdersTableProps)
                         <tbody className="divide-y divide-slate-100">
                             {orders.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
                                         <div className="flex flex-col items-center gap-2">
                                             <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center">
                                                 <IndianRupee className="w-6 h-6 text-slate-300" />
@@ -99,11 +110,23 @@ export function AdminOrdersTable({ orders, count, page }: AdminOrdersTableProps)
                                         <div className="flex flex-col gap-0.5">
                                             <div className="font-semibold text-slate-900 flex items-center gap-1.5">
                                                 <User className="w-3 h-3 text-slate-400" />
-                                                {order.addresses?.name}
+                                                {order.addresses?.name || 'N/A'}
                                             </div>
                                             <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5 ml-0.5">
                                                 <Phone className="w-3 h-3 text-slate-400" />
-                                                {order.addresses?.phone}
+                                                {order.addresses?.phone || 'N/A'}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-700">
+                                                <MapPin className="w-3 h-3 text-green-600" />
+                                                {order.areas?.name || <span className="text-slate-400 italic">No Area</span>}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                                <Store className="w-3 h-3 text-blue-400" />
+                                                {order.sellers?.Seller_name || <span className="text-slate-400 italic">No Seller</span>}
                                             </div>
                                         </div>
                                     </td>

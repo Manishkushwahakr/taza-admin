@@ -21,6 +21,10 @@ interface Order {
     subtotal: number
     delivery_fee: number
     total: number
+    base_price_amount?: number
+    seller_price_amount?: number
+    commission_amount?: number
+    tech_fee_amount?: number
     addresses?: {
         name: string
         phone: string
@@ -259,6 +263,32 @@ export function OrderDetailsDrawer({ isOpen, onClose, order }: OrderDetailsDrawe
                                     <div className="text-right">
                                         <p className="text-5xl font-black tabular-nums bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent italic">₹{order.total}</p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Admin Financials */}
+                        <div className="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                                Internal Financials
+                            </h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Base Price</p>
+                                    <p className="font-bold text-slate-900">₹{order.base_price_amount || 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Seller Pay</p>
+                                    <p className="font-bold text-slate-900">₹{order.seller_price_amount || 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Commission</p>
+                                    <p className="font-bold text-green-600">₹{order.commission_amount || 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Tech Fee</p>
+                                    <p className="font-bold text-blue-600">₹{order.tech_fee_amount || 0}</p>
                                 </div>
                             </div>
                         </div>

@@ -67,19 +67,19 @@ export default async function SellersPage({ searchParams }: { searchParams: Prom
             <div className="flex space-x-2 border-b border-slate-100">
                 <Link
                     href="/admin/sellers?status=all"
-                    className={`px-4 py-2 text-sm font-bold ${statusFilter === 'all' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`px-4 py-2 text-sm font-bold ${statusFilter === 'all' ? 'border-b-2 border-green-600 text-green-600' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                     All
                 </Link>
                 <Link
                     href="/admin/sellers?status=active"
-                    className={`px-4 py-2 text-sm font-bold ${statusFilter === 'active' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`px-4 py-2 text-sm font-bold ${statusFilter === 'active' ? 'border-b-2 border-green-600 text-green-600' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                     Active
                 </Link>
                 <Link
                     href="/admin/sellers?status=inactive"
-                    className={`px-4 py-2 text-sm font-bold ${statusFilter === 'inactive' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`px-4 py-2 text-sm font-bold ${statusFilter === 'inactive' ? 'border-b-2 border-green-600 text-green-600' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                     Pending / Inactive
                 </Link>
@@ -125,7 +125,7 @@ export default async function SellersPage({ searchParams }: { searchParams: Prom
                                         <span className="font-bold text-slate-900 text-xs">{seller.commission_percentage}%</span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase border ${seller.is_active ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
+                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase border ${seller.is_active ? 'bg-green-50 text-green-700 border-green-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
                                             {seller.is_active ? 'Verified' : 'Pending'}
                                         </span>
                                     </td>
@@ -136,7 +136,7 @@ export default async function SellersPage({ searchParams }: { searchParams: Prom
                                                     Deactivate
                                                 </button>
                                             ) : (
-                                                <button className="h-9 rounded-xl bg-emerald-600 px-4 text-[11px] font-bold text-white transition-all hover:bg-emerald-700 active:scale-95 shadow-lg shadow-emerald-500/20">
+                                                <button className="h-9 rounded-xl bg-green-600 px-4 text-[11px] font-bold text-white transition-all hover:bg-green-700 active:scale-95 shadow-lg shadow-green-500/20">
                                                     Verify & Approve
                                                 </button>
                                             )}

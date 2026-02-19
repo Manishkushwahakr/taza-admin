@@ -98,7 +98,7 @@ export default async function AdminProductsPage({
                             name="q"
                             defaultValue={q}
                             placeholder="Search by name or brand..."
-                            className="h-11 w-full rounded-xl border border-slate-200 pl-11 pr-4 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                            className="h-11 w-full rounded-xl border border-slate-200 pl-11 pr-4 text-sm transition-all focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-500/10"
                         />
                     </div>
 
@@ -108,7 +108,7 @@ export default async function AdminProductsPage({
                             <select
                                 name="category"
                                 defaultValue={category}
-                                className="h-11 rounded-xl border border-slate-200 bg-white pl-10 pr-8 text-sm appearance-none focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+                                className="h-11 rounded-xl border border-slate-200 bg-white pl-10 pr-8 text-sm appearance-none focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-500/10"
                             >
                                 <option value="">All Categories</option>
                                 {categories?.map(cat => (
@@ -116,7 +116,7 @@ export default async function AdminProductsPage({
                                 ))}
                             </select>
                         </div>
-                        <button type="submit" className="h-11 rounded-xl bg-blue-600 px-6 font-bold text-white shadow-lg shadow-blue-600/10 transition-all hover:bg-blue-700 active:scale-95">
+                        <button type="submit" className="h-11 rounded-xl bg-green-600 px-6 font-bold text-white shadow-lg shadow-green-600/10 transition-all hover:bg-green-700 active:scale-95">
                             Apply
                         </button>
                         {(q || category) && (
@@ -181,7 +181,7 @@ export default async function AdminProductsPage({
                                         <td className="px-6 py-4">
                                             <div className="flex flex-wrap gap-1.5">
                                                 {product.product_categories?.map((pc: any) => (
-                                                    <span key={pc.category_id} className="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-700 uppercase tracking-tighter">
+                                                    <span key={pc.category_id} className="inline-flex items-center rounded-lg bg-green-50 px-2.5 py-1 text-[10px] font-bold text-green-700 uppercase tracking-tighter">
                                                         {pc.categories?.name}
                                                     </span>
                                                 )) || <span className="text-slate-400 text-xs">Uncategorized</span>}
@@ -219,7 +219,7 @@ export default async function AdminProductsPage({
                                             <div className="flex items-center gap-2">
                                                 <Link
                                                     href={`/admin/products/${product.id}/edit`}
-                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 transition-all hover:border-blue-200 hover:text-blue-600 hover:shadow-sm active:scale-95"
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 transition-all hover:border-green-200 hover:text-green-600 hover:shadow-sm active:scale-95"
                                                 >
                                                     <Edit2 className="h-4 w-4" />
                                                 </Link>

@@ -76,7 +76,7 @@ export function OrderFilter() {
                             key={type}
                             onClick={() => handleTypeChange(type)}
                             className={`px-5 py-2 text-sm font-semibold rounded-md transition-all duration-200 ${filterType === type
-                                ? 'bg-white text-blue-600 shadow-sm'
+                                ? 'bg-white text-green-600 shadow-sm'
                                 : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50'
                                 }`}
                         >
@@ -87,13 +87,13 @@ export function OrderFilter() {
 
                 {/* Search */}
                 <div className="relative group flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-green-500 transition-colors" />
                     <input
                         type="text"
                         placeholder="Search Order ID, Name, Phone..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500/10 focus:border-green-500 transition-all"
                     />
                 </div>
             </div>
@@ -145,12 +145,12 @@ export function OrderFilter() {
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all"
                         />
                     </div>
                     <button
                         onClick={() => applyFilters()}
-                        className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 shadow-md shadow-blue-200 hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
+                        className="px-6 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 shadow-md shadow-green-200 hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
                     >
                         <Filter className="w-4 h-4" /> Apply Range
                     </button>

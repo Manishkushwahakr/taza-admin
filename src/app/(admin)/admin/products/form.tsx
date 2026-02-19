@@ -69,7 +69,7 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
                                     required
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    className="h-11 w-full rounded-xl border border-slate-200 px-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                    className="h-11 w-full rounded-xl border border-slate-200 px-4 text-sm focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-500/10 transition-all"
                                     placeholder="e.g. Fresh Tomatoes"
                                 />
                             </div>
@@ -189,7 +189,7 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
                                     type="checkbox"
                                     checked={formData.in_stock}
                                     onChange={e => setFormData({ ...formData, in_stock: e.target.checked })}
-                                    className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                    className="h-5 w-5 rounded border-slate-300 text-green-600 focus:ring-green-500"
                                 />
                                 <span className="text-sm text-slate-600 font-medium">Available in Stock</span>
                             </div>
@@ -221,7 +221,7 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
 
                     <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-4">
                         <h2 className="text-xl font-bold text-slate-900 border-b border-slate-50 pb-4">Media</h2>
-                        <div className="aspect-square w-full rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-4 text-center space-y-2 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                        <div className="aspect-square w-full rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-4 text-center space-y-2 hover:border-green-500 hover:bg-green-50 transition-all cursor-pointer">
                             {formData.image_url ? (
                                 <div className="relative w-full h-full group">
                                     <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover rounded-lg" />
@@ -239,12 +239,12 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
                                         <Upload className="h-6 h-6" />
                                     </div>
                                     <div className="text-xs font-medium text-slate-500">
-                                        <span className="text-blue-600">Click to upload</span> or drag and drop image
+                                        <span className="text-green-600">Click to upload</span> or drag and drop image
                                     </div>
                                     <input
                                         type="text"
                                         placeholder="Or paste image URL"
-                                        className="mt-2 w-full text-xs border-b border-slate-100 focus:outline-none focus:border-blue-500"
+                                        className="mt-2 w-full text-xs border-b border-slate-100 focus:outline-none focus:border-green-500"
                                         onBlur={e => setFormData({ ...formData, image_url: e.target.value })}
                                     />
                                 </>
@@ -256,7 +256,7 @@ export function ProductForm({ product, categories, mode }: ProductFormProps) {
                         <button
                             disabled={loading}
                             type="submit"
-                            className="flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 font-bold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-slate-800 active:scale-95 disabled:opacity-70"
+                            className="flex h-12 items-center justify-center gap-2 rounded-xl bg-green-600 font-bold text-white shadow-lg shadow-green-600/10 transition-all hover:bg-green-700 active:scale-95 disabled:opacity-70"
                         >
                             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                             {mode === 'create' ? 'Publish Product' : 'Save Changes'}

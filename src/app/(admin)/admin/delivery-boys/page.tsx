@@ -1,8 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { Search } from 'lucide-react'
-import { UserList } from './user-list'
+import { UserList } from '@/app/(admin)/admin/users/user-list' // Reusing UserList but will label as Delivery Boys
 
-export default async function UsersPage({
+export default async function DeliveryBoysPage({
     searchParams
 }: {
     searchParams: Promise<{ q?: string; page?: string }>
@@ -15,32 +15,43 @@ export default async function UsersPage({
     const startRange = (page - 1) * limit
     const endRange = startRange + limit - 1
 
-    // Fetch profiles with roles - Optimized field selection
-    let query = supabase
-        .from('profiles')
-        .select(`
-            user_id,
-            name,
-            phone,
-            created_at,
-            user_roles (role)
-        `, { count: 'exact' })
+    // Fetch profiles with role 'delivery_partner'
+    // This requires filtering on the related user_roles table which is tricky in Supabase one-shot standard queries without RPC or complex embedding.
+    // However, I can select from user_roles and join profiles.
 
+    let query = supabase
+        .from('user_roles')
+        .select(`
+            role,
+            profiles!inner (
+                user_id,
+                name,
+                phone,
+                created_at,
+                user_roles (role)
+            )
+        `, { count: 'exact' })
+        .eq('role', 'delivery_partner')
+
+    // Since we are filtering on profiles!inner, we might need to apply search there.
     if (q) {
-        query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%`)
+        query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%`, { foreignTable: 'profiles' })
     }
 
     // Apply Pagination
     query = query.range(startRange, endRange)
 
-    const { data: users, count, error } = await query.order('created_at', { ascending: false })
+    const { data: rolesData, count, error } = await query
+
+    // Transform data to match UserList expectation (array of profiles)
+    const users = rolesData?.map((item: any) => item.profiles) || []
 
     return (
         <div className="space-y-8 p-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">User Management</h1>
-                    <p className="text-slate-500 text-sm">Monitor user profiles, contact details, and manage system access roles.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Delivery Partners</h1>
+                    <p className="text-slate-500 text-sm">Manage your delivery fleet and verify their status.</p>
                 </div>
             </div>
 
@@ -57,11 +68,11 @@ export default async function UsersPage({
                         />
                     </div>
                     <button type="submit" className="h-12 rounded-xl bg-green-600 px-8 font-bold text-white shadow-lg shadow-green-600/10 transition-all hover:bg-green-700 active:scale-95">
-                        Search Users
+                        Search
                     </button>
                     {q && (
                         <a
-                            href="/admin/users"
+                            href="/admin/delivery-boys"
                             className="inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 px-6 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all"
                         >
                             Clear
@@ -70,7 +81,8 @@ export default async function UsersPage({
                 </form>
             </div>
 
-            <UserList initialUsers={users || []} totalCount={count || 0} currentPage={page} />
+            {/* We can re-use UserList since the data structure is mapped to be the same */}
+            <UserList initialUsers={users} totalCount={count || 0} currentPage={page} />
         </div>
     )
 }
