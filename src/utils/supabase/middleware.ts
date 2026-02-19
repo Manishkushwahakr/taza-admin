@@ -37,10 +37,11 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    // 1. Protect Admin/Seller Routes
     if (
         !user &&
-        !request.nextUrl.pathname.startsWith('/login') &&
-        !request.nextUrl.pathname.startsWith('/auth')
+        (request.nextUrl.pathname.startsWith('/admin') ||
+            request.nextUrl.pathname.startsWith('/seller'))
     ) {
         // no user, potentially respond by redirecting the user to the login page
         const url = request.nextUrl.clone()
@@ -48,6 +49,11 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url)
     }
 
+    if (!user) {
+        return supabaseResponse
+    }
+
+    // Role-Based Access Control (RBAC)
     // Role-Based Access Control (RBAC)
     if (user) {
         // 1. Fetch user role
@@ -67,6 +73,17 @@ export async function updateSession(request: NextRequest) {
         // 3. Protect Seller Routes
         if (request.nextUrl.pathname.startsWith('/seller') && role !== 'seller') {
             return NextResponse.redirect(new URL('/', request.url))
+        }
+
+        // 4. Redirect logged-in users away from login page
+        if (request.nextUrl.pathname.startsWith('/login')) {
+            if (role === 'admin') {
+                return NextResponse.redirect(new URL('/admin', request.url))
+            } else if (role === 'seller') {
+                return NextResponse.redirect(new URL('/seller', request.url))
+            } else {
+                return NextResponse.redirect(new URL('/', request.url))
+            }
         }
     }
 
