@@ -25,7 +25,12 @@ export function OrderFilter() {
         if (search) params.set('search', search)
 
         if (type === 'today') {
-            const today = new Date().toISOString().split('T')[0]
+            // FIX: Use Local Date instead of UTC (toISOString)
+            // specific to user's timezone (India/Asia or system default)
+            const d = new Date()
+            const offset = d.getTimezoneOffset()
+            const today = new Date(d.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0]
+
             params.set('start_date', today)
             params.set('end_date', today)
             if (currentSlot !== 'all') params.set('slot', currentSlot)
