@@ -9,7 +9,7 @@ export function OrderFilter() {
     const searchParams = useSearchParams()
     const [isPending, startTransition] = useTransition()
 
-    const [filterType, setFilterType] = useState(searchParams.get('filter_type') || 'today')
+    const [filterType, setFilterType] = useState(searchParams.get('filter_type') || 'all')
     const [slot, setSlot] = useState(searchParams.get('slot') || 'all')
     const [startDate, setStartDate] = useState(searchParams.get('start_date') || '')
     const [endDate, setEndDate] = useState(searchParams.get('end_date') || '')
@@ -39,11 +39,12 @@ export function OrderFilter() {
             if (startDate) params.set('start_date', startDate)
             if (endDate) params.set('end_date', endDate)
         }
+        // 'all' type doesn't need start/end date params, so they are cleared by re-creating params or just not setting them
 
         startTransition(() => {
             router.push(`/admin/orders?${params.toString()}`)
         })
-    }, [filterType, slot, startDate, endDate, search, router])
+    }, [filterType, slot, startDate, endDate, search, router, startDate, endDate])
 
     // Debounce search
     useEffect(() => {
@@ -71,7 +72,7 @@ export function OrderFilter() {
             <div className="flex flex-col lg:flex-row justify-between gap-4 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
                 {/* Tabs */}
                 <div className="flex bg-slate-100/80 p-1 rounded-lg self-start">
-                    {['today', 'yesterday', 'custom'].map((type) => (
+                    {['all', 'today', 'yesterday', 'custom'].map((type) => (
                         <button
                             key={type}
                             onClick={() => handleTypeChange(type)}
@@ -80,7 +81,7 @@ export function OrderFilter() {
                                 : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50'
                                 }`}
                         >
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                            {type === 'all' ? 'All Orders' : type.charAt(0).toUpperCase() + type.slice(1)}
                         </button>
                     ))}
                 </div>
