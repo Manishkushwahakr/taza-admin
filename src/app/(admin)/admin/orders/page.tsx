@@ -25,7 +25,7 @@ export default async function AdminOrdersPage({
         .select(`
             *,
             addresses ( name, phone, area, pincode, house_no, landmark ),
-            sellers ( Seller_name ),
+            sellers!orders_seller_id_fkey ( Seller_name ),
             areas ( name ),
             order_items ( id, product_name, quantity, price, product_image ),
             order_payments ( mode, paid )
