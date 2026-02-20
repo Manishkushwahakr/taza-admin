@@ -1,5 +1,7 @@
 import { AdminSidebar } from '@/components/admin-sidebar'
 import { TopNavbar } from '@/components/admin/top-navbar'
+import { SidebarProvider } from '@/contexts/sidebar-context'
+import { AdminLayoutWrapper } from '@/components/admin/admin-layout-wrapper'
 
 export default function AdminLayout({
     children,
@@ -7,14 +9,14 @@ export default function AdminLayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="flex h-screen bg-gray-50">
+        <SidebarProvider>
             <AdminSidebar />
-            <div className="flex flex-1 flex-col md:pl-64 transition-all duration-300">
+            <AdminLayoutWrapper>
                 <TopNavbar />
                 <main className="flex-1 overflow-y-auto p-8">
                     {children}
                 </main>
-            </div>
-        </div>
+            </AdminLayoutWrapper>
+        </SidebarProvider>
     )
 }

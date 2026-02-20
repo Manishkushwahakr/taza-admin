@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { OrderStatusSelect } from '@/components/admin/order-status-select'
-import { X, User, MapPin, Phone, CreditCard, ShoppingBag, Receipt, Printer, MessageCircle, PhoneCall, Calendar, Clock } from 'lucide-react'
+import { X, User, MapPin, Phone, CreditCard, ShoppingBag, Receipt, Printer, MessageCircle, PhoneCall, Calendar, Clock, Loader2 } from 'lucide-react'
 
 interface OrderItem {
     id: string
@@ -45,6 +45,8 @@ interface OrderDetailsDrawerProps {
 
 export function OrderDetailsDrawer({ isOpen, onClose, order }: OrderDetailsDrawerProps) {
     const [isVisible, setIsVisible] = useState(false)
+    const [isGenerating, setIsGenerating] = useState(false)
+    const invoiceRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         if (isOpen) {
@@ -57,6 +59,55 @@ export function OrderDetailsDrawer({ isOpen, onClose, order }: OrderDetailsDrawe
             return () => clearTimeout(timer)
         }
     }, [isOpen])
+
+    const generateInvoice = async () => {
+        if (!invoiceRef.current) return
+
+        try {
+            setIsGenerating(true)
+
+            // Dynamically import to avoid SSR issues
+            const html2canvas = (await import('html2canvas')).default
+            const { jsPDF } = await import('jspdf')
+
+            const element = invoiceRef.current
+            // Temporarily make it visible for canvas rendering without affecting layout
+            const originalStyle = element.style.cssText
+            element.style.position = 'absolute'
+            element.style.left = '0'
+            element.style.top = '0'
+            element.style.width = '800px' // fixed width for consistent PDF
+            element.style.visibility = 'visible'
+            element.style.display = 'block'
+            element.style.zIndex = '-9999'
+
+            const canvas = await html2canvas(element, {
+                scale: 2, // High resolution
+                useCORS: true,
+                logging: false,
+                windowWidth: 800
+            })
+
+            // Restore original styles
+            element.style.cssText = originalStyle
+
+            const imgData = canvas.toDataURL('image/png')
+
+            // A4 format: 210 x 297 mm
+            const pdf = new jsPDF('p', 'mm', 'a4')
+            const pdfWidth = pdf.internal.pageSize.getWidth()
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+            pdf.save(`Invoice_TazaTaza_${order.order_number}.pdf`)
+
+        } catch (error) {
+            console.error('Error generating invoice:', error)
+            alert('Failed to generate invoice. Please try again.')
+        } finally {
+            setIsGenerating(false)
+        }
+    }
 
     if (!isVisible && !isOpen) return null
 
@@ -93,7 +144,7 @@ export function OrderDetailsDrawer({ isOpen, onClose, order }: OrderDetailsDrawe
                                 </div>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors">
+                        <button onClick={onClose} disabled={isGenerating} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors disabled:opacity-50">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
@@ -126,7 +177,7 @@ export function OrderDetailsDrawer({ isOpen, onClose, order }: OrderDetailsDrawe
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse block"></span>
                                 Track Status
                             </p>
                             <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
@@ -294,14 +345,130 @@ export function OrderDetailsDrawer({ isOpen, onClose, order }: OrderDetailsDrawe
                 <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-100 bg-white shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] flex justify-between gap-3 z-20">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3.5 border border-slate-200 rounded-full hover:bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-600 transition-all active:scale-95"
+                        disabled={isGenerating}
+                        className="flex-1 py-3.5 border border-slate-200 rounded-full hover:bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-600 transition-all active:scale-95 disabled:opacity-50"
                     >
                         Back to List
                     </button>
-                    <button className="flex-[1.5] py-3.5 bg-[#0f172a] text-white rounded-full hover:bg-slate-800 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-slate-200 transition-all active:scale-95">
-                        <Printer className="w-4 h-4" />
-                        Generate Invoice
+                    <button
+                        onClick={generateInvoice}
+                        disabled={isGenerating}
+                        className="flex-[1.5] py-3.5 bg-[#0f172a] text-white rounded-full hover:bg-slate-800 text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-slate-200 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        {isGenerating ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Generating...
+                            </>
+                        ) : (
+                            <>
+                                <Printer className="w-4 h-4" />
+                                Generate Invoice
+                            </>
+                        )}
                     </button>
+                </div>
+            </div>
+
+            {/* Hidden Printable Invoice Template */}
+            <div
+                ref={invoiceRef}
+                className="absolute top-0 left-0 w-[800px] bg-white p-12 -z-50 opacity-0 pointer-events-none"
+                style={{ fontFamily: 'sans-serif' }}
+            >
+                {/* Invoice Header */}
+                <div className="flex justify-between items-start mb-12 border-b-2 border-slate-800 pb-8">
+                    <div>
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">TAX INVOICE</h1>
+                        <p className="text-slate-500 font-medium">Order #: <span className="text-slate-900 font-bold">{order.order_number}</span></p>
+                        <p className="text-slate-500 font-medium">Date: <span className="text-slate-900 font-bold">{new Date(order.created_at).toLocaleDateString()}</span></p>
+                        <p className="text-slate-500 font-medium">Time: <span className="text-slate-900 font-bold">{new Date(order.created_at).toLocaleTimeString()}</span></p>
+                    </div>
+                    <div className="text-right">
+                        <h2 className="text-2xl font-black text-blue-600 mb-1">Taza Taza</h2>
+                        <p className="text-sm text-slate-500">Hyperlocal Grocery Delivery</p>
+                        <p className="text-sm text-slate-500 mt-1">support@tazataza.com</p>
+                    </div>
+                </div>
+
+                <div className="flex justify-between mb-12">
+                    {/* Billed To */}
+                    <div className="w-1/2 pr-6">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Billed To</h3>
+                        <p className="text-lg font-bold text-slate-900 mb-1">{order.addresses?.name}</p>
+                        <p className="text-slate-600 mb-1">{order.addresses?.house_no}, {order.addresses?.area}</p>
+                        <p className="text-slate-600 mb-2">Pincode: {order.addresses?.pincode}</p>
+                        <p className="text-slate-600 font-medium flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-slate-400" />
+                            {order.addresses?.phone}
+                        </p>
+                    </div>
+
+                    {/* Payment Info */}
+                    <div className="w-1/3">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Payment Info</h3>
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <p className="flex justify-between mb-2">
+                                <span className="text-slate-500">Method:</span>
+                                <span className="font-bold text-slate-900 uppercase">{order.payment_mode}</span>
+                            </p>
+                            <p className="flex justify-between">
+                                <span className="text-slate-500">Status:</span>
+                                {order.order_payments?.[0]?.paid ? (
+                                    <span className="font-bold text-green-600 uppercase">PAID</span>
+                                ) : (
+                                    <span className="font-bold text-orange-500 uppercase">PENDING</span>
+                                )}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Items Table */}
+                <table className="w-full mb-12">
+                    <thead>
+                        <tr className="bg-slate-900 text-white text-left">
+                            <th className="py-3 px-4 rounded-l-xl font-medium tracking-wide">Item Description</th>
+                            <th className="py-3 px-4 text-center font-medium tracking-wide">Qty</th>
+                            <th className="py-3 px-4 text-right font-medium tracking-wide">Price</th>
+                            <th className="py-3 px-4 rounded-r-xl text-right font-medium tracking-wide">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                        {order.order_items?.map((item, index) => (
+                            <tr key={index}>
+                                <td className="py-4 px-4 font-medium text-slate-900">{item.product_name}</td>
+                                <td className="py-4 px-4 text-center">{item.quantity}</td>
+                                <td className="py-4 px-4 text-right">₹{item.price.toFixed(2)}</td>
+                                <td className="py-4 px-4 text-right font-bold text-slate-900">₹{(item.price * item.quantity).toFixed(2)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {/* Totals */}
+                <div className="flex justify-end">
+                    <div className="w-1/2 bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                        <div className="flex justify-between text-slate-600 mb-3">
+                            <span>Subtotal</span>
+                            <span className="font-medium text-slate-900">₹{order.subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-600 mb-4">
+                            <span>Delivery & Service Fee</span>
+                            <span className="font-medium text-slate-900">₹{order.delivery_fee.toFixed(2)}</span>
+                        </div>
+                        <div className="h-px bg-slate-200 mb-4"></div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-lg font-bold text-slate-900 uppercase tracking-wide">Total Amount</span>
+                            <span className="text-3xl font-black text-blue-600">₹{order.total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer Notes */}
+                <div className="mt-16 text-center text-slate-400 text-sm border-t border-slate-100 pt-6">
+                    <p className="font-medium text-slate-500 mb-1">Thank you for shopping with Taza Taza!</p>
+                    <p>This is a computer generated invoice and does not require a physical signature.</p>
                 </div>
             </div>
         </div>

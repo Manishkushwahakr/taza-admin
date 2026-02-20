@@ -1,15 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Bell, User } from 'lucide-react'
+import { Bell, User, Menu } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useSidebar } from '@/contexts/sidebar-context'
 
 export function TopNavbar() {
     const [currentTime, setCurrentTime] = useState<string>('')
     const [adminName, setAdminName] = useState<string>('Admin')
     const supabase = createClient()
     const router = useRouter()
+    const { toggleSidebar, toggleMobileSidebar } = useSidebar()
 
     useEffect(() => {
         // Real-time clock
@@ -41,8 +43,22 @@ export function TopNavbar() {
 
     return (
         <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-white px-6 shadow-sm">
-            {/* Left side (Breadcrumb or similar, currently empty or reused for mobile toggle if needed) */}
+            {/* Left side */}
             <div className="flex items-center gap-4">
+                {/* Desktop Toggle */}
+                <button
+                    onClick={toggleSidebar}
+                    className="hidden md:flex p-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-green-600 transition-colors"
+                >
+                    <Menu className="h-5 w-5" />
+                </button>
+                {/* Mobile Toggle */}
+                <button
+                    onClick={toggleMobileSidebar}
+                    className="md:hidden flex p-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-green-600 transition-colors"
+                >
+                    <Menu className="h-5 w-5" />
+                </button>
                 <h2 className="text-lg font-bold text-green-700 tracking-tight">Taza Taza Admin</h2>
             </div>
 
