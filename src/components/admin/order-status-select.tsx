@@ -2,6 +2,7 @@
 
 import { updateOrderStatus } from '@/app/actions'
 import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 
 export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string, currentStatus: string }) {
     const [status, setStatus] = useState(currentStatus)
@@ -33,13 +34,13 @@ export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string,
     }
 
     return (
-        <div className="relative">
+        <div className="relative group inline-block w-full">
             <select
                 value={status}
                 onChange={handleChange}
                 disabled={loading}
                 className={`
-                    appearance-none w-full px-3 py-1.5 rounded-full text-xs font-semibold border cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400
+                    appearance-none w-full pl-3 pr-8 py-1.5 rounded-full text-xs font-semibold border cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-400
                     ${getStatusColor(status)}
                     ${loading ? 'opacity-50 cursor-wait' : ''}
                 `}
@@ -50,6 +51,10 @@ export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string,
                 <option value="delivered">DELIVERED</option>
                 <option value="cancelled">CANCELLED</option>
             </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-current opacity-70 group-hover:opacity-100 transition-opacity">
+                <ChevronDown className="w-4 h-4" />
+            </div>
         </div>
     )
 }
+
