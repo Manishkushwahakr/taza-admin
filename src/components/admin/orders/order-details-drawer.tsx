@@ -43,10 +43,20 @@ interface OrderDetailsDrawerProps {
     order: Order
 }
 
-export function OrderDetailsDrawer({ isOpen, onClose, order }: OrderDetailsDrawerProps) {
+export function OrderDetailsDrawer({ isOpen, onClose, order: incomingOrder }: OrderDetailsDrawerProps) {
     const [isVisible, setIsVisible] = useState(false)
     const [isGenerating, setIsGenerating] = useState(false)
+    const [savedOrder, setSavedOrder] = useState<Order>(incomingOrder)
     const invoiceRef = useRef<HTMLDivElement>(null)
+
+    // Keep the most recent valid order around for the exit animation
+    useEffect(() => {
+        if (incomingOrder && incomingOrder.id) {
+            setSavedOrder(incomingOrder)
+        }
+    }, [incomingOrder])
+
+    const order = (incomingOrder && incomingOrder.id) ? incomingOrder : savedOrder
 
     useEffect(() => {
         if (isOpen) {
@@ -110,6 +120,7 @@ export function OrderDetailsDrawer({ isOpen, onClose, order }: OrderDetailsDrawe
     }
 
     if (!isVisible && !isOpen) return null
+    if (!order || !order.id) return null
 
     return (
         <div className="fixed inset-0 z-[100] flex justify-end">
